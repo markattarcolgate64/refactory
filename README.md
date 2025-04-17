@@ -1,4 +1,4 @@
-# Refactory Orchestrator
+# Refactory AI
 Refactory is a hybrid Command‑Line Interface (CLI) and HTTP API for orchestrating AI‑driven coding agents. It automates the lifecycle from a raw user request, through planning, task assignment, code generation, and finally reconciliation of generated code into a single codebase.
 
 ## Architecture Overview
