@@ -9,23 +9,52 @@ Refactory is a hybrid Command‑Line Interface (CLI) and HTTP API for orchestrat
 
 This MVP uses an in‑memory store. You can extend it with persistent storage, real Git operations, CI checks, and RBAC.
 
-## Prerequisites
-- Node.js (>=14)
-- npm (or Yarn)
-- OpenAI API key
++-------------+
+|  User Input |
++-------------+
+       |
+       v
++----------------+
+| Planner Agent  |
++----------------+
+       |
+       v
++----------------------+
+| Orchestrator Agent  |
++----------------------+
+      /        \
+     v          v
++----------+ +----------+
+| Coder 1  | | Coder 2  |
++----------+ +----------+
+     |            |
+     v            v
++----------+ +----------+
+| Tester 1 | | Tester 2 |
++----------+ +----------+
+      \        /
+       v      v
++----------------------+
+| Orchestrator Agent  |
++----------------------+
+       |
+       v
++---------------+
+| Review Agent  |
++---------------+
+       |
+       v
++---------------+
+| Launch Agent  |
++---------------+
 
-## Getting Started
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/your‑org/refactory-orchestrator.git
-   cd refactory-orchestrator
-   ```
-2. Install dependencies:
+Install dependencies:
    ```bash
    npm install
    ```
-3. Configure environment variables:
+
+Configure environment variables:
    ```bash
    export REF_API_URL=http://localhost:3000   # (optional, default)
    export OPENAI_API_KEY=<your_openai_api_key>
