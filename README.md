@@ -9,6 +9,7 @@ Refactory is a hybrid Command‑Line Interface (CLI) and HTTP API for orchestrat
 
 This MVP uses an in‑memory store. You can extend it with persistent storage, real Git operations, CI checks, and RBAC.
 
+```text
 +-------------+
 |  User Input |
 +-------------+
@@ -48,11 +49,13 @@ This MVP uses an in‑memory store. You can extend it with persistent storage, r
 | Launch Agent  |
 +---------------+
 
+```
+
 
 Install dependencies:
    ```bash
    npm install
-   ```
+
 
 Configure environment variables:
    ```bash
