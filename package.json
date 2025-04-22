@@ -10,22 +10,25 @@
     "start:cli": "ts-node src/cli.ts",
     "start:planner-agent": "ts-node src/agents/plannerAgent.ts",
     "start:coder-agent": "ts-node src/agents/coderAgent.ts",
-    "dev:server": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev:server": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
+    "nodemon:server": "nodemon --watch src --ext ts --exec ts-node src/server.ts",
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "axios": "^0.21.1",
-    "commander": "^8.0.0",
-    "express": "^4.17.1",
     "body-parser": "^1.19.0",
+    "commander": "^8.0.0",
+    "dotenv": "^16.5.0",
+    "express": "^4.17.1",
     "openai": "^4.10.0"
   },
   "devDependencies": {
+    "@types/commander": "^2.12.2",
     "@types/express": "^4.17.13",
     "@types/node": "^14.14.41",
-    "@types/commander": "^2.12.2",
-    "ts-node": "^9.1.1",
-    "ts-node-dev": "^1.1.6",
-    "typescript": "^4.2.4"
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
   }
 }

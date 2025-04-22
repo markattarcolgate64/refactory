@@ -21,23 +21,21 @@ async function fetchNewRequests() {
 
 // Build prompt for the planning agent
 function buildPrompt(request: any): string {
-  return `You are a planning agent using OpenAI model o4-mini-high.
-Given a user story, generate a high-level design document and a list of scoped tasks.
+  return `You are a planning agent and senior software architect. Take the following user request and flesh it out into a detailed product, system design and project plan, suitable for a team of engineers. Expand on the requirements, clarify any ambiguities, and provide a step-by-step outline of how you would approach building this system.
 
-User Story:
+User Request:
 Title: ${request.title}
 Description: ${request.description}
 
-Output must be valid JSON with this structure:
-{
-  "designDoc": "<detailed design document>",
-  "tasks": [
-    { "title": "<task title>", "detail": "<task detail>" },
-    ...
-  ]
-}
+Your output should be a clear, organized, and comprehensive plan, including:
+- A summary of the product’s purpose, goals, and scope
+- Fleshed out system design 
+- Key architectural decisions and technology choices
+- Major components/modules and their responsibilities
+- A step-by-step breakdown of the implementation plan
+- Any assumptions, risks, or open questions
 
-Only output the JSON object.`;
+Write your response as if you are presenting it to a technical team.`;
 }
 
 // Submit plan to the API
@@ -60,22 +58,10 @@ async function run() {
       temperature: 0,
       max_tokens: 1024,
     });
-    const text = response.choices?.[0]?.text || '';
-    console.log('LLM response:', text);
-    let planDef;
-    try {
-      planDef = JSON.parse(text);
-    } catch (e) {
-      console.error('Failed to parse JSON:', e);
-      continue;
-    }
-    const { designDoc, tasks } = planDef;
-    if (!designDoc || !Array.isArray(tasks)) {
-      console.error('Invalid plan format');
-      continue;
-    }
-    await submitPlan(req.id, { designDoc, tasks });
-    console.log(`Submitted plan for request ${req.id}`);
+    const enhancedPlan = response.choices?.[0]?.text || '';
+    console.log('Enhanced system design and plan:', enhancedPlan);
+    await submitPlan(req.id, { designDoc: enhancedPlan });
+    console.log(`Submitted enhanced plan for request ${req.id}`);
   }
 }
 

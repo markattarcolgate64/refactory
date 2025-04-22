@@ -121,6 +121,7 @@ export function getTask(id: number): Task | undefined {
   return tasks.get(id);
 }
 
+// Modern orchestration logic for assigning tasks to coder agents
 export function createOrchestration(
   planId: number,
   agents: number,
@@ -130,6 +131,7 @@ export function createOrchestration(
   const plan = plans.get(planId);
   if (!plan) throw new Error('Plan not found');
   orchestrationCounter += 1;
+  // Assign coder agents round-robin to tasks
   const agentNames = Array.from({ length: agents }, (_, i) => `coder${i+1}`);
   const assignments = plan.tasks.map((task, idx) => {
     const agent = agentNames[idx % agentNames.length];
@@ -148,8 +150,11 @@ export function createOrchestration(
     state: 'assigned',
   };
   orchestrations.set(orch.id, orch);
+  // Optionally update plan/request state here if needed
   return orch;
 }
+
+// Deprecated: Remove any old orchestration functions below this line if present.
 
 export function getOrchestration(id: number): Orchestration | undefined {
   return orchestrations.get(id);
