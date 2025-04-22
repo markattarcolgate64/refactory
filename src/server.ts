@@ -5,6 +5,7 @@ import {
   listRequests,
   getRequest,
   createPlan,
+  createPlanWithDefinition,
   getPlan,
   createOrchestration,
   getOrchestration,
@@ -42,10 +43,20 @@ app.get('/requests/:id', (req, res) => {
 });
 
 // POST /requests/:id/plans
-app.post('/requests/:id/plans', (req, res) => {
+// If a body with designDoc and tasks is provided, use it; otherwise fallback to static stub
+app.post('/requests/:id/plans', async (req, res) => {
   const id = parseInt(req.params.id, 10);
+  const { designDoc, tasks: tasksDef } = req.body as {
+    designDoc?: string;
+    tasks?: { title: string; detail: string }[];
+  };
   try {
-    const plan = createPlan(id);
+    let plan;
+    if (designDoc && Array.isArray(tasksDef)) {
+      plan = createPlanWithDefinition(id, designDoc, tasksDef);
+    } else {
+      plan = createPlan(id);
+    }
     res.status(202).json({ planId: plan.id, estimatedTasks: plan.tasks.length });
   } catch (err: any) {
     res.status(404).json({ error: err.message });

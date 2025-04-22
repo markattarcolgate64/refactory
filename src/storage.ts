@@ -66,6 +66,42 @@ export function createPlan(requestId: number): Plan {
   return plan;
 }
 
+/**
+ * Create a plan using a provided design document and tasks definition.
+ */
+export function createPlanWithDefinition(
+  requestId: number,
+  designDoc: string,
+  tasksDef: { title: string; detail: string }[]
+): Plan {
+  const req = requests.get(requestId);
+  if (!req) throw new Error('Request not found');
+  planCounter += 1;
+  const pid = planCounter;
+  const planTasks: Task[] = tasksDef.map((def) => {
+    taskCounter += 1;
+    const t: Task = {
+      id: taskCounter,
+      planId: pid,
+      title: def.title,
+      detail: def.detail,
+      state: 'unassigned',
+    };
+    tasks.set(t.id, t);
+    return t;
+  });
+  const plan: Plan = {
+    id: pid,
+    requestId,
+    designDoc,
+    tasks: planTasks,
+  };
+  plans.set(plan.id, plan);
+  req.state = 'planned';
+  requests.set(requestId, req);
+  return plan;
+}
+
 export function getPlan(id: number): Plan | undefined {
   return plans.get(id);
 }
