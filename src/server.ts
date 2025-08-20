@@ -148,12 +148,22 @@ app.post('/workflow', async (req, res) => {
     if (!OPENAI_API_KEY) throw new Error('Missing OPENAI_API_KEY');
     const client = new OpenAI({ apiKey: OPENAI_API_KEY });
     const planInstructions = `You are a planning agent and senior software architect. Take the following user request and flesh it out into a detailed product, system design and project plan, suitable for a team of engineers. Expand on the requirements, clarify any ambiguities, and provide a step-by-step outline of how you would approach building this system.\n\nYour output should be a clear, organized, and comprehensive plan, including:\n- A summary of the product’s purpose, goals, and scope\n- Fleshed out system design \n- Key architectural decisions and technology choices\n- Major components/modules and their responsibilities\n- A step-by-step breakdown of the implementation plan\n- Any assumptions, risks, or open questions\n\nWrite your response as if you are presenting it to a technical team.`;
-    const planResponse = await client.responses.create({
-      model: "gpt-4.1",
-      instructions: planInstructions,
-      input: input,
+    const planResponse = await client.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: planInstructions
+        },
+        {
+          role: "user", 
+          content: input
+        }
+      ],
+      temperature: 0,
+      max_tokens: 1024
     });
-    const designDoc = planResponse.output_text?.trim() || '';
+    const designDoc = planResponse.choices[0]?.message?.content?.trim() || '';
     if (!designDoc) throw new Error('Planning agent did not return a plan');
 
     // 2. Create the plan in storage
@@ -165,14 +175,24 @@ app.post('/workflow', async (req, res) => {
 
     // 3. Orchestrator agent (LLM) to generate tickets
     const orchInstructions = `You are an orchestration agent. Given the following system design and plan, break it down into 1 or 2 separately scoped, actionable engineering tickets for coder agents. Each ticket should have a title and a detailed description, and should be as independent and atomic as possible.\n\nOutput ONLY valid JSON in the following format:\n[\n  { "title": "<ticket title>", "detail": "<ticket detail>" },\n  ...\n]`;
-    const orchResponse = await client.responses.create({
-      model: "gpt-4.1",
-      instructions: orchInstructions,
-      input: designDoc,
+    const orchResponse = await client.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: orchInstructions
+        },
+        {
+          role: "user",
+          content: designDoc
+        }
+      ],
+      temperature: 0,
+      max_tokens: 512
     });
     let tickets;
     try {
-      tickets = JSON.parse(orchResponse.output_text || '[]');
+      tickets = JSON.parse(orchResponse.choices[0]?.message?.content || '[]');
     } catch (e) {
       throw new Error('Orchestrator agent did not return valid JSON tickets');
     }

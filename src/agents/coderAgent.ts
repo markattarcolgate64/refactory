@@ -90,12 +90,22 @@ export async function run() {
     console.log(`Processing task ${task.id}: ${task.title}`);
     // Update: instruct agent to use tool calls for file/directory operations
     const toolPrompt = `You have access to the following tools for file and directory operations within the project repository:\n\n- writeFile(relativePath, content): Write or overwrite a file at relativePath with the given content.\n- deleteFile(relativePath): Delete the file at relativePath.\n- createDirectory(relativePath): Create a directory at relativePath (including parent directories).\n- deleteDirectory(relativePath): Delete the directory at relativePath and all its contents.\n\nAll paths must be relative to the project root. Do not attempt to access files or directories outside the project root. To update a file, simply use writeFile (it will overwrite any existing file). Output a list of tool calls in valid JSON.\n\nExample:\n[\n  {"tool": "writeFile", "args": ["src/api/todo.ts", "// file content"]},\n  {"tool": "deleteFile", "args": ["oldfile.js"]},\n  {"tool": "createDirectory", "args": ["src/utils"]},\n  {"tool": "deleteDirectory", "args": ["src/old"] }\n]\n\nTask: ${buildPrompt(task)}`;
-    const response = await openai.responses.create({
-      model: 'gpt-4.1',
-      instructions: toolPrompt,
-      input: buildPrompt(task),
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: "system",
+          content: toolPrompt
+        },
+        {
+          role: "user",
+          content: buildPrompt(task)
+        }
+      ],
+      temperature: 0,
+      max_tokens: 1024
     });
-    const toolCalls = JSON.parse(response.output_text);
+    const toolCalls = JSON.parse(response.choices[0]?.message?.content || '[]');
     for (const call of toolCalls) {
       console.log("Tool xz",call.tool);
       if (typeof fileTools[call.tool as keyof typeof fileTools] === 'function') {

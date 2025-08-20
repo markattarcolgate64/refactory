@@ -27,13 +27,18 @@ async function fetchAgentStatus(agent: string) {
 
 async function createTicketsWithLLM(designDoc: string): Promise<{ title: string; detail: string }[]> {
   const prompt = `You are an orchestration agent. Given the following system design and plan, break it down into 1 or 2 separately scoped, actionable engineering tickets for coder agents. Each ticket should have a title and a detailed description, and should be as independent and atomic as possible.\n\nOutput ONLY valid JSON in the following format:\n[\n  { "title": "<ticket title>", "detail": "<ticket detail>" },\n  ...\n]\n\nSystem Design and Plan:\n${designDoc}`;
-  const response = await openai.completions.create({
-    model: 'o4-mini-high',
-    prompt,
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      {
+        role: "user",
+        content: prompt
+      }
+    ],
     temperature: 0,
     max_tokens: 512,
   });
-  const text = response.choices?.[0]?.text || '';
+  const text = response.choices?.[0]?.message?.content || '';
   try {
     const tickets = JSON.parse(text);
     if (Array.isArray(tickets) && tickets.length > 0) {

@@ -52,13 +52,18 @@ async function run() {
   for (const req of requests) {
     console.log(`Planning for request ${req.id}: ${req.title}`);
     const prompt = buildPrompt(req);
-    const response = await openai.completions.create({
-      model: 'o4-mini-high',
-      prompt,
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
       temperature: 0,
       max_tokens: 1024,
     });
-    const enhancedPlan = response.choices?.[0]?.text || '';
+    const enhancedPlan = response.choices?.[0]?.message?.content || '';
     console.log('Enhanced system design and plan:', enhancedPlan);
     await submitPlan(req.id, { designDoc: enhancedPlan });
     console.log(`Submitted enhanced plan for request ${req.id}`);
